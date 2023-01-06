@@ -1,0 +1,94 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  # 파일 설정
+  servlet:
+    multipart:
+      # 요청 파일 하나의 사이즈
+      max-file-size: 1024MB
+      # 요청 파일 총 사이즈
+      max-request-size: 1024MB
+      # 멀티 파트 업로드 지원여부 : default-true
+      enabled: true
+
+  # WebClient 사용 시 메모리 버퍼사이즈 조절
+  codec:
+    max-in-memory-size: 10MB
+
+  # DB 사용 설정
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:manager
+    username: sa
+    password:
+
+    hikari:
+      pool-name: hikari-cp
+      maximum-pool-size: 2
+      max-lifetime: 55000
+      auto-commit: false
+      connection-test-query: SELECT 1
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      dialect: org.hibernate.dialect.H2Dialect
+      ddl-auto: create
+    open-in-view: false
+    properties:
+      hibernate:
+        show-sql: true
+        format_sql: true
+
+
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+#    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+#    open-in-view: false
+#    properties:
+#      hibernate:
+#        show-sql: true
+#        format_sql: true
+
+
+
+
+
+# jps, css 변경시 새로고침 없이 바로 적용.
+  devtools:
+    livereload:
+      enabled: true
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: C:${file.separator}logs${file.separator}logging.log
+  level:
+    root: info
+    com:
+      zaxxer:
+        hikari: info
+    jdbc:
+      resultset: info
+      resultsettable: info
+      audit: info
+      sqltiming: info
+      connection: info
+    org.hibernate:
+      type: off
+#      파라미터까지 확인.
+#      type.descriptor.sql : trace
+      SQL: info
+    org.springframework.web: info
+    javax.sql.DataSource: info
+    log4jdbc.log4j2: off
