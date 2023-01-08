@@ -1,0 +1,41 @@
+package com.management.inventory.stock.domain.entity;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
+import javax.persistence.*;
+
+@Getter
+@Entity
+@ToString
+@DynamicInsert
+@DynamicUpdate
+@Table(name = "STOCK")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Stock {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long seq;
+    private String productName;
+    private String optionName;
+    private Long quantity;
+
+    public Stock(Long seq, Long quantity) {
+        this.seq = seq;
+        this.quantity = quantity;
+    }
+
+    public void quantityManagement(Long quantity) {
+        if (this.quantity - quantity < 0) {
+            throw new RuntimeException();
+        }
+        this.quantity = this.quantity + quantity;
+    }
+
+
+}

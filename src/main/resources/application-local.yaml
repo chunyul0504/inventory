@@ -3,69 +3,49 @@ spring:
     activate:
       on-profile: local
 
-  # 파일 설정
-  servlet:
-    multipart:
-      # 요청 파일 하나의 사이즈
-      max-file-size: 1024MB
-      # 요청 파일 총 사이즈
-      max-request-size: 1024MB
-      # 멀티 파트 업로드 지원여부 : default-true
-      enabled: true
-
   # WebClient 사용 시 메모리 버퍼사이즈 조절
   codec:
     max-in-memory-size: 10MB
 
+  sql:
+    init:
+      mode: always # boot 실행 될 때마다 sql 스크립트 실행 - 나중에 시간 되면 추가
+
   # DB 사용 설정
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:manager
-    username: sa
-    password:
-
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/inventory
+    username: sjchoi
+    password: SJchoi0504*
     hikari:
       pool-name: hikari-cp
       maximum-pool-size: 2
       max-lifetime: 55000
       auto-commit: false
       connection-test-query: SELECT 1
+#      data: classpath:database/import.sql
 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+#    data:
+#      redis:
+#        host: localhost
+#        port: 6379
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      dialect: org.hibernate.dialect.H2Dialect
-      ddl-auto: create
     open-in-view: false
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    defer-datasource-initialization: true
+    hibernate:
+#      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
-        show-sql: true
+        # 해당 내용은 hibernate로 자동 테이블 생성될때 같이 sql을 실행한다.
+        hbm2ddl:
+          import_files: classpath:database/import.sql
+          import_files_sql_extractor: org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
         format_sql: true
-
-
-#  jpa:
-#    hibernate:
-#      ddl-auto: create
-#    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-#    open-in-view: false
-#    properties:
-#      hibernate:
-#        show-sql: true
-#        format_sql: true
-
-
-
-
-
-# jps, css 변경시 새로고침 없이 바로 적용.
-  devtools:
-    livereload:
-      enabled: true
+        highlight_sql: true
+        show_sql: true
 
 logging:
   pattern:
@@ -74,21 +54,18 @@ logging:
   file:
     name: C:${file.separator}logs${file.separator}logging.log
   level:
-    root: info
-    com:
-      zaxxer:
-        hikari: info
+#    root: INFO
+    com.zaxxer.hikari: info #HikariCP log 설정
     jdbc:
-      resultset: info
-      resultsettable: info
-      audit: info
+      audit: off # ResultSet을 제외한 JDBC호출 정보를 로그로 남긴다.
+      resultset: off # ResultSet을 포함한 JDBC호출 정보를 로그로 남긴다.
+      resultsettable: info # # SQL결과를 테이블 형태로 보여준다.
       sqltiming: info
       connection: info
-    org.hibernate:
-      type: off
-#      파라미터까지 확인.
-#      type.descriptor.sql : trace
-      SQL: info
-    org.springframework.web: info
+    org:
+      hibernate:
+        sql: debug
+        type: trace
+      springframework.web: info
     javax.sql.DataSource: info
     log4jdbc.log4j2: off
