@@ -23,7 +23,6 @@ spring:
       max-lifetime: 55000
       auto-commit: false
       connection-test-query: SELECT 1
-#      data: classpath:database/import.sql
 
 #    data:
 #      redis:
@@ -31,12 +30,13 @@ spring:
 #        port: 6379
 
   jpa:
+    generate-ddl: true
     open-in-view: false
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     defer-datasource-initialization: true
     hibernate:
-#      ddl-auto: create
-      ddl-auto: none
+      ddl-auto: create-drop
+#      ddl-auto: none
     properties:
       hibernate:
         # 해당 내용은 hibernate로 자동 테이블 생성될때 같이 sql을 실행한다.

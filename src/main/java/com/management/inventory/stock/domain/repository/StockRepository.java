@@ -6,7 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {
-
-    long findByProductNameAndOptionName(String productName, String optionName);
-
 }

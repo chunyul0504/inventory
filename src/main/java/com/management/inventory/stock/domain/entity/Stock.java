@@ -1,5 +1,7 @@
 package com.management.inventory.stock.domain.entity;
 
+import com.management.inventory.exception.ApiException;
+import com.management.inventory.response.StockResponseMessage;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,7 +34,7 @@ public class Stock {
 
     public void quantityManagement(Long quantity) {
         if (this.quantity - quantity < 0) {
-            throw new RuntimeException();
+            throw ApiException.by(StockResponseMessage.NO_STOCK);
         }
         this.quantity = this.quantity + quantity;
     }
