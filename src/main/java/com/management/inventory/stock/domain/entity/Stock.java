@@ -27,8 +27,10 @@ public class Stock {
     private String optionName;
     private Long quantity;
 
-    public Stock(Long seq, Long quantity) {
+    public Stock(Long seq, String productName, String optionName, Long quantity) {
         this.seq = seq;
+        this.productName = productName;
+        this.optionName = optionName;
         this.quantity = quantity;
     }
 
