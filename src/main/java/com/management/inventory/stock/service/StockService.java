@@ -8,7 +8,6 @@ import com.management.inventory.stock.domain.dto.StockResponse;
 import com.management.inventory.stock.domain.entity.Stock;
 import com.management.inventory.stock.domain.repository.StockRepository;
 import com.management.inventory.stock.domain.repository.StockRepositorySupport;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -19,12 +18,17 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-@AllArgsConstructor
 public class StockService {
 
     private final RedissonClient redissonClient;
     private final StockRepository stockRepository;
     private final StockRepositorySupport stockRepositorySupport;
+
+    public StockService(RedissonClient redissonClient, StockRepository stockRepository, StockRepositorySupport stockRepositorySupport) {
+        this.redissonClient = redissonClient;
+        this.stockRepository = stockRepository;
+        this.stockRepositorySupport = stockRepositorySupport;
+    }
 
     /**
      * 재고 수량 조회
@@ -33,7 +37,11 @@ public class StockService {
      * @return StockResponse
      */
     public StockResponse searchStock(StockRequest stockRequest) {
-        if (stockRequest.optionIsBlank()) {
+        if (stockRequest.productNameIsBlank()) {
+            throw ApiException.by(StockResponseMessage.INVALID_REQUIRED_VALUE);
+        }
+
+        if (stockRequest.optionNameIsBlank()) {
             return new StockResponse(this.findStockList(stockRequest.getProductName()));
         } else {
             return new StockResponse(this.findStock(stockRequest.getProductName(), stockRequest.getOptionName()));
@@ -62,7 +70,7 @@ public class StockService {
     }
 
     public void quantityManager(StockRequest stockRequest) {
-        Long seq = stockRepositorySupport.findStock(stockRequest.getProductName(), stockRequest.getOptionName()).getSeq();
+        Long seq = stockRepositorySupport.findStockSeq(stockRequest.getProductName(), stockRequest.getOptionName());
         this.stockUpdate(seq, stockRequest.getQuantity());
     }
 
@@ -72,7 +80,7 @@ public class StockService {
      * @param seq
      * @param quantity
      */
-    public void stockUpdate(final Long seq, final Long quantity) {
+    private void stockUpdate(final Long seq, final Long quantity) {
 
         RLock lock = redissonClient.getLock(seq.toString());
 
@@ -91,7 +99,7 @@ public class StockService {
 
         } catch (InterruptedException e) {
             throw ApiException.by(StockResponseMessage.STOCK_FAIL_UPDATE, e.toString());
-        } catch (ApiException e){
+        } catch (ApiException e) {
             throw ApiException.by(e.getBaseResponse());
         } finally {
             lock.unlock();

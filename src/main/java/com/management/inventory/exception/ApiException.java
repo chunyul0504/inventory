@@ -4,11 +4,9 @@ package com.management.inventory.exception;
 import com.management.inventory.response.BaseResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.annotation.Immutable;
 
 @Slf4j
 @Getter
-@Immutable
 public class ApiException extends RuntimeException {
 
     private final transient BaseResponse baseResponse;

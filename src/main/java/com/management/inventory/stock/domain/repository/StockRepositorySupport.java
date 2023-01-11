@@ -5,7 +5,6 @@ import com.management.inventory.stock.domain.entity.QStock;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ObjectUtils;
@@ -14,10 +13,13 @@ import java.util.List;
 
 @Slf4j
 @Repository
-@RequiredArgsConstructor
 public class StockRepositorySupport {
 
     private final JPAQueryFactory jpaQueryFactory;
+
+    public StockRepositorySupport(JPAQueryFactory jpaQueryFactory) {
+        this.jpaQueryFactory = jpaQueryFactory;
+    }
 
 
     /**
@@ -48,6 +50,25 @@ public class StockRepositorySupport {
         QStock qStock = QStock.stock;
 
         return jpaQueryFactory.select(Projections.constructor(StockDto.class, qStock))
+                .from(qStock)
+                .where(
+                        eqProductName(productName)
+                        , eqOptionName(optionName)
+                )
+                .fetchOne();
+    }
+
+    /**
+     * Stock 의 SEQ 찾기
+     *
+     * @param productName
+     * @param optionName
+     * @return
+     */
+    public Long findStockSeq(String productName, String optionName) {
+        QStock qStock = QStock.stock;
+
+        return jpaQueryFactory.select(qStock.seq)
                 .from(qStock)
                 .where(
                         eqProductName(productName)

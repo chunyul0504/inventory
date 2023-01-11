@@ -1,11 +1,15 @@
 package com.management.inventory.stock.domain.dto;
 
-import lombok.*;
+import com.management.inventory.exception.ApiException;
+import com.management.inventory.response.StockResponseMessage;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Objects;
+
 @Getter
-@Setter
-@ToString
 @NoArgsConstructor
 public class StockRequest {
 
@@ -13,11 +17,7 @@ public class StockRequest {
     private String optionName;
     private Long quantity;
 
-    public StockRequest(String productName, String optionName) {
-        this.productName = productName;
-        this.optionName = optionName;
-    }
-
+    @Builder
     public StockRequest(String productName, String optionName, Long quantity) {
         this.productName = productName;
         this.optionName = optionName;
@@ -28,15 +28,43 @@ public class StockRequest {
         this.productName = productName;
     }
 
-    public boolean optionIsBlank(){
-        if(StringUtils.isBlank(optionName)){
+    public boolean optionNameIsBlank() {
+        if (StringUtils.isBlank(optionName)) {
             return true;
         }
         return false;
     }
 
-    public StockRequest decrease(){
-        this.quantity = - this.quantity;
+    public boolean productNameIsBlank() {
+        if (StringUtils.isBlank(productName)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean quantityIsBlank() {
+        if (Objects.isNull(quantity) || quantity < 0L) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkQuantityUpdateRequired() {
+
+        if (this.productNameIsBlank() || this.optionNameIsBlank() || this.quantityIsBlank()) {
+            throw ApiException.by(StockResponseMessage.INVALID_REQUIRED_VALUE);
+        }
+        return true;
+    }
+
+    public StockRequest decrease() {
+        this.checkQuantityUpdateRequired();
+        this.quantity = -this.quantity;
+        return this;
+    }
+
+    public StockRequest increase() {
+        this.checkQuantityUpdateRequired();
         return this;
     }
 

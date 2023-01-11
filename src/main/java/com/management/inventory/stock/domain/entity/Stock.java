@@ -35,7 +35,7 @@ public class Stock {
     }
 
     public void quantityManagement(Long quantity) {
-        if (this.quantity - quantity < 0) {
+        if (this.quantity + quantity < 0) {
             throw ApiException.by(StockResponseMessage.NO_STOCK);
         }
         this.quantity = this.quantity + quantity;
