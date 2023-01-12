@@ -59,6 +59,16 @@ class StockServiceUnitTests {
     }
 
 
+    // 상품명 조회에 사용
+    static Stream<Arguments> stockProductProvider() {
+        return Stream.of(
+                Arguments.of("prd-a", Arrays.asList("opt-aa", "opt-ab"), Arrays.asList(0L, 0L)),
+                Arguments.of("prd-b", Arrays.asList("opt-ba", "opt-bb", "opt-bc"), Arrays.asList(0L, 0L, 0L)),
+                Arguments.of("prd-c", Arrays.asList("opt-ca"), Arrays.asList(0L))
+        );
+    }
+
+
     @DisplayName("상품명에 따라 해당하는 옵션별 재고수량을 반환한다.")
     @ParameterizedTest
     @MethodSource("stockProductProvider")
@@ -80,6 +90,18 @@ class StockServiceUnitTests {
 
     }
 
+    // 상품명+옵션명 조회에 사용
+    static Stream<Arguments> stockProductOptionsProvider() {
+        return Stream.of(
+                Arguments.of("prd-a", "opt-aa", 0L),
+                Arguments.of("prd-a", "opt-ab", 0L),
+                Arguments.of("prd-b", "opt-ba", 0L),
+                Arguments.of("prd-b", "opt-bb", 0L),
+                Arguments.of("prd-b", "opt-bc", 0L),
+                Arguments.of("prd-c", "opt-ca", 0L)
+        );
+    }
+
     @DisplayName("상품명과 옵션명을 넣으면 조합에 해당하는 재고수량을 반환한다.")
     @ParameterizedTest
     @MethodSource("stockProductOptionsProvider")
@@ -99,6 +121,17 @@ class StockServiceUnitTests {
         assertEquals(quantity, stockResponse.getStock().getQuantity());
     }
 
+    // 재고 증감소 테스트에 사용
+    static Stream<Arguments> stockUpdateProvider() {
+        return Stream.of(
+                Arguments.of("prd-a", "opt-aa", 1L),
+                Arguments.of("prd-a", "opt-ab", 1L),
+                Arguments.of("prd-b", "opt-ba", 1L),
+                Arguments.of("prd-b", "opt-bb", 1L),
+                Arguments.of("prd-b", "opt-bc", 1L),
+                Arguments.of("prd-c", "opt-ca", 1L)
+        );
+    }
 
     /**
      * 재고 증가 테스트
@@ -184,39 +217,6 @@ class StockServiceUnitTests {
         assertEquals(beforeStockDecrease.getStock().getQuantity() - quantity, afterStockDecrease.getStock().getQuantity());
     }
 
-    // 재고 증감소 테스트에 사용
-    static Stream<Arguments> stockUpdateProvider() {
-        return Stream.of(
-                Arguments.of("prd-a", "opt-aa", 1L),
-                Arguments.of("prd-a", "opt-ab", 1L),
-                Arguments.of("prd-b", "opt-ba", 1L),
-                Arguments.of("prd-b", "opt-bb", 1L),
-                Arguments.of("prd-b", "opt-bc", 1L),
-                Arguments.of("prd-c", "opt-ca", 1L)
-        );
-    }
-
-    // 상품명+옵션명 조회에 사용
-    static Stream<Arguments> stockProductOptionsProvider() {
-        return Stream.of(
-                Arguments.of("prd-a", "opt-aa", 0L),
-                Arguments.of("prd-a", "opt-ab", 0L),
-                Arguments.of("prd-b", "opt-ba", 0L),
-                Arguments.of("prd-b", "opt-bb", 0L),
-                Arguments.of("prd-b", "opt-bc", 0L),
-                Arguments.of("prd-c", "opt-ca", 0L)
-        );
-    }
-
-    // 상품명 조회에 사용
-    static Stream<Arguments> stockProductProvider() {
-        return Stream.of(
-                Arguments.of("prd-a", Arrays.asList("opt-aa", "opt-ab"), Arrays.asList(0L, 0L)),
-                Arguments.of("prd-b", Arrays.asList("opt-ba", "opt-bb", "opt-bc"), Arrays.asList(0L, 0L, 0L)),
-                Arguments.of("prd-c", Arrays.asList("opt-ca"), Arrays.asList(0L))
-        );
-    }
-
     @DisplayName("멀티스레드 환경에서의 증가 테스트. 최종 갯수와 일치하는지 확인 하는 테스트.")
     @ParameterizedTest
     @MethodSource("stockUpdateProvider")
@@ -292,15 +292,16 @@ class StockServiceUnitTests {
 
         for (int i = 0; i < threadCount; i++) {
 
+            StockRequest stockRequestUpdate =
+                    StockRequest
+                            .builder()
+                            .productName(productName)
+                            .optionName(optionName)
+                            .quantity(quantity)
+                            .build();
+
             executorService.submit(() -> {
 
-                StockRequest stockRequestUpdate =
-                        StockRequest
-                                .builder()
-                                .productName(productName)
-                                .optionName(optionName)
-                                .quantity(quantity)
-                                .build();
 
                 try {
                     stockService.quantityManager(stockRequestUpdate.decrease());

@@ -14,7 +14,6 @@ import javax.persistence.*;
 
 @Getter
 @Entity
-@ToString
 @Slf4j
 @DynamicInsert
 @DynamicUpdate

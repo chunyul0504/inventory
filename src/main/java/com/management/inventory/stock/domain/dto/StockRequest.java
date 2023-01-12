@@ -9,7 +9,6 @@ import org.springframework.data.annotation.Immutable;
 import java.util.Objects;
 
 @Getter
-@ToString
 @Immutable
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StockRequest {
@@ -64,7 +63,7 @@ public class StockRequest {
 
     public StockRequest decrease() {
         this.checkQuantityUpdateRequired();
-        this.quantity = -this.quantity;
+        this.quantity = (-1) * this.quantity;
         return this;
     }
 
