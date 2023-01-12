@@ -106,11 +106,11 @@ Redis로 확정하고 나서도 Lettuce와 Redisson 사이에서 고민했습니
 ---
 #### **window 환경(cmd)에서 빌드 방법**
 
-##### >> gradlew 명령어를 통해서 jar 파일을 생성합니다.
+###### >> gradlew 명령어를 통해서 jar 파일을 생성합니다.
 ```
 # gradlew bootjar
 ```
-##### >> 혹시나 빌드에 실패한다면 clean 명령어를 실행해주고 다시 build 합니다.
+###### >> 혹시나 빌드에 실패한다면 clean 명령어를 실행해주고 다시 build 합니다.
 ```
 # gradlew clean
 # gradlew clean build
@@ -153,14 +153,15 @@ Redis로 확정하고 나서도 Lettuce와 Redisson 사이에서 고민했습니
 
 ## 테스트 방법
 
-##### 테스트코드는 IDE에서 JUnit 코드를 실행하여 확인이 가능합니다.
-##### 프로젝트 build 시에 따로 Ignore를 설정 하지 않았으므로 Build가 잘 되었다면 테스트도 성공한 것입니다.
+###### 테스트는 단위테스트와 통합테스트로 구성했으며, 통합테스트에는 WebClient 를 사용했습니다.
+###### (다음 통합테스트는 MockMvc 같은 기술을 사용해 깔끔하게 정리해봐야겠다는 생각을 했습니다.)
+###### 테스트코드는 IDE에서 JUnit 코드를 실행하여 확인이 가능합니다.
+###### 프로젝트 build 시에 따로 Ignore를 설정 하지 않았으므로 Build가 잘 되었다면 테스트도 성공한 것입니다.
 ![image](https://user-images.githubusercontent.com/48276424/211842920-850b6e46-bec4-4c1a-b0b4-c1cdf72be9d6.png)
 ---
 
 ###### Spring Boot를 띄우고 PostMan으로도 간단하게 테스트가 가능합니다.
 ![image](https://user-images.githubusercontent.com/48276424/211756239-09e2df1a-5c7d-413b-8129-bad2eec8c1f9.png)
-
 
 ## 프로젝트를 마치며
 여태는 synchronized 로 많이 처리를 해왔는데 안전하게 막아주지만 속도가 저하되는 단점이 있었습니다.
