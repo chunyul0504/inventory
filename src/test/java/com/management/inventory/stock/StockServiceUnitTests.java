@@ -220,7 +220,7 @@ class StockServiceUnitTests {
     @DisplayName("멀티스레드 환경에서의 증가 테스트. 최종 갯수와 일치하는지 확인 하는 테스트.")
     @ParameterizedTest
     @MethodSource("stockUpdateProvider")
-    public void multiThreadTest(String productName, String optionName, Long quantity) throws InterruptedException {
+    public void multiThreadIncreaseTest(String productName, String optionName, Long quantity) throws InterruptedException {
 
         StockRequest stockRequest =
                 StockRequest
@@ -252,11 +252,74 @@ class StockServiceUnitTests {
         // countDownLatch 의 숫자가 0이 될 때까지 대기
         countDownLatch.await();
 
-        StockResponse stockResponse = stockService.searchStock(stockRequest);
+        StockResponse stockResponse = stockService.searchStock(StockRequest.builder().productName(productName).optionName(optionName).build());
 
         assertEquals(productName, stockResponse.getStock().getProductName());
         assertEquals(optionName, stockResponse.getStock().getOptionName());
         assertEquals(100L, stockResponse.getStock().getQuantity());
+
+    }
+
+    @DisplayName("멀티스레드 환경에서의 감소 테스트. 최종 갯수와 일치하는지 확인 하는 테스트.")
+    @ParameterizedTest
+    @MethodSource("stockUpdateProvider")
+    public void multiThreadDecreaseTest(String productName, String optionName, Long quantity) throws InterruptedException {
+
+        // 재고 0개로 default 생성되기 때문에 재고 먼저 100개로 증가시켜준다
+        Long increaseCount = 100L;
+
+        StockRequest stockRequestIncrease =
+                StockRequest
+                        .builder()
+                        .productName(productName)
+                        .optionName(optionName)
+                        .quantity(increaseCount) // 재고 증가 최초 100개 생성
+                        .build();
+
+        StockResponse beforeStockIncrease = stockService.searchStock(stockRequestIncrease);
+        stockService.quantityManager(stockRequestIncrease.increase());
+        StockResponse afterStockIncrease = stockService.searchStock(stockRequestIncrease);
+
+        assertEquals(productName, afterStockIncrease.getStock().getProductName());
+        assertEquals(optionName, afterStockIncrease.getStock().getOptionName());
+        assertEquals(increaseCount + beforeStockIncrease.getStock().getQuantity(), afterStockIncrease.getStock().getQuantity());
+
+        // 멀티스레드 재고 감소 테스트 시작
+        int threadCount = 100;
+        // * 참고 : tomcat 의 thread 개수 기본값은 200이다.
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
+        CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+
+            executorService.submit(() -> {
+
+                StockRequest stockRequestUpdate =
+                        StockRequest
+                                .builder()
+                                .productName(productName)
+                                .optionName(optionName)
+                                .quantity(quantity)
+                                .build();
+
+                try {
+                    stockService.quantityManager(stockRequestUpdate.decrease());
+                } catch (ApiException e) {
+                    throw ApiException.by(StockResponseMessage.STOCK_FAIL_UPDATE);
+                } finally {
+                    // countDownLatch 숫자 감소
+                    countDownLatch.countDown();
+                }
+
+            });
+        }
+        // countDownLatch 의 숫자가 0이 될 때까지 대기
+        countDownLatch.await();
+
+        StockResponse stockResponse = stockService.searchStock(StockRequest.builder().productName(productName).optionName(optionName).build());
+        assertEquals(productName, stockResponse.getStock().getProductName());
+        assertEquals(optionName, stockResponse.getStock().getOptionName());
+        assertEquals(0L, stockResponse.getStock().getQuantity());
 
     }
 

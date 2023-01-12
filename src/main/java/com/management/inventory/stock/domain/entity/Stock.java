@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -14,6 +15,7 @@ import javax.persistence.*;
 @Getter
 @Entity
 @ToString
+@Slf4j
 @DynamicInsert
 @DynamicUpdate
 @Table(name = "STOCK")

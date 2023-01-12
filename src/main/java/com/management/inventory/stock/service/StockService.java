@@ -38,7 +38,7 @@ public class StockService {
      */
     public StockResponse searchStock(StockRequest stockRequest) {
         if (stockRequest.productNameIsBlank()) {
-            throw ApiException.by(StockResponseMessage.INVALID_REQUIRED_VALUE);
+            throw ApiException.by(StockResponseMessage.INVALID_PRODUCT_NAME_VALUE);
         }
 
         if (stockRequest.optionNameIsBlank()) {

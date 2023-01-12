@@ -2,15 +2,16 @@ package com.management.inventory.stock.domain.dto;
 
 import com.management.inventory.exception.ApiException;
 import com.management.inventory.response.StockResponseMessage;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.annotation.Immutable;
 
 import java.util.Objects;
 
 @Getter
-@NoArgsConstructor
+@ToString
+@Immutable
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StockRequest {
 
     private String productName;
@@ -49,12 +50,16 @@ public class StockRequest {
         return false;
     }
 
-    private boolean checkQuantityUpdateRequired() {
-
-        if (this.productNameIsBlank() || this.optionNameIsBlank() || this.quantityIsBlank()) {
-            throw ApiException.by(StockResponseMessage.INVALID_REQUIRED_VALUE);
+    private void checkQuantityUpdateRequired() {
+        if (this.productNameIsBlank()) {
+            throw ApiException.by(StockResponseMessage.INVALID_PRODUCT_NAME_VALUE);
         }
-        return true;
+        if (this.optionNameIsBlank()) {
+            throw ApiException.by(StockResponseMessage.INVALID_OPTION_NAME_VALUE);
+        }
+        if (this.quantityIsBlank()) {
+            throw ApiException.by(StockResponseMessage.INVALID_QUANTITY_VALUE);
+        }
     }
 
     public StockRequest decrease() {
